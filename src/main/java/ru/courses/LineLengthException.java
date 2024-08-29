@@ -1,4 +1,4 @@
-package ru.courses.exception;
+package ru.courses;
 
 public class LineLengthException extends RuntimeException {
     public LineLengthException() {
