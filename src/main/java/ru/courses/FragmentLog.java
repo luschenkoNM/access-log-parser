@@ -17,14 +17,20 @@ enum FragmentLog {
         @Override
         public String getParameters(String str) {
             String[] parts = str.split(" ");
-            String fragment = parts[3] + " " + parts[4];
-            return fragment.substring(1, fragment.length() - 1);
+            String fragment = parts[3];
+            return fragment.substring(1, fragment.length());
         }
-    }, REQUEST {
+    }, METHOD {
         @Override
         public String getParameters(String str) {
             String[] parts = str.split(" ");
-            return parts[5] + " " + parts[6] + " " + parts[7];
+            return parts[5].substring(1, parts[5].length());
+        }
+    }, PATH {
+        @Override
+        public String getParameters(String str) {
+            String[] parts = str.split(" ");
+            return parts[6];
         }
     }, RESPONSE_CODE {
         @Override
@@ -32,13 +38,13 @@ enum FragmentLog {
             String[] parts = str.split(" ");
             return parts[8];
         }
-    }, SIZE {
+    }, RESPONSE_SIZE {
         @Override
         public String getParameters(String str) {
             String[] parts = str.split(" ");
             return parts[9];
         }
-    }, URL {
+    }, REFERER {
         @Override
         public String getParameters(String str) {
             String[] parts = str.split(" ");
