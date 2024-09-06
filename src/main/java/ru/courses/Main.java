@@ -35,8 +35,11 @@ public class Main {
 //            System.out.println("Минимальное время: " + getStatistics(file).getMinTime());
 //            System.out.println("Максимальное время: " + getStatistics(file).getMaxTime());
 //            System.out.println("Запросы с кодом 200: " + getStatistics(file).getSetExistingPages());
-            System.out.println("Количество ОС: " + getStatistics(file).getCountOS());
-            System.out.println("Статистика ОС: " + getStatistics(file).getStatisticsOS());
+//            System.out.println("Количество ОС: " + getStatistics(file).getCountOS());
+//            System.out.println("Статистика ОС: " + getStatistics(file).getStatisticsOS());
+//            System.out.println("Запросы с кодом 404: " + getStatistics(file).getSetNonExistingPages());
+            System.out.println("Количество используемых браузеров" + getStatistics(file).getCountBrowsers());
+            System.out.println("Статистика по используемым браузерам" + getStatistics(file).getStatisticsBrowsers());
         }
 
     }
