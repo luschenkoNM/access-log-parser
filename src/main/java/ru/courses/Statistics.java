@@ -12,12 +12,15 @@ import java.util.Map;
 @Getter
 public class Statistics {
     private long totalTraffic;
+    private int countRequestOfUsers;
+    private int countFailedRequestOfUsers;
     private LocalDateTime minTime;
     private LocalDateTime maxTime;
     private HashSet<String> setExistingPages;
     private HashSet<String> setNonExistingPages;
     private HashMap<String, Integer> countOS;
     private HashMap<String, Integer> countBrowsers;
+    private HashSet<String> setIpAddr;
 
     public Statistics() {
         this.minTime = LocalDateTime.MAX;
@@ -27,6 +30,9 @@ public class Statistics {
         this.setNonExistingPages = new HashSet<>();
         this.countOS = new HashMap<>();
         this.countBrowsers = new HashMap<>();
+        this.countRequestOfUsers = 0;
+        this.countFailedRequestOfUsers = 0;
+        this.setIpAddr = new HashSet<>();
     }
 
     public void addEntry(LogEntry logEntry) {
@@ -41,6 +47,23 @@ public class Statistics {
             this.setExistingPages.add(logEntry.getPath());
         if (logEntry.getResponseCode() == 404)
             this.setNonExistingPages.add(logEntry.getPath());
+        if (!logEntry.getUserAgent().isBot())
+            this.countRequestOfUsers++;
+        if (checkFailedRequestOfUsers(logEntry))
+            this.countFailedRequestOfUsers++;
+        if (!logEntry.getUserAgent().isBot())
+            this.setIpAddr.add(logEntry.getIpAddr());
+    }
+
+    /**
+     * Метод проверяет является ли запрос пользователя ошибочным
+     */
+    private boolean checkFailedRequestOfUsers(LogEntry logEntry) {
+        boolean result = false;
+        String codeToString = String.valueOf(logEntry.getResponseCode());
+        if (!logEntry.getUserAgent().isBot() && (codeToString.startsWith("4") || codeToString.startsWith("5")))
+            result = true;
+        return result;
     }
 
     /**
@@ -69,8 +92,7 @@ public class Statistics {
     public long getTrafficRate() {
         Period period = Period.between(getMinTime().toLocalDate(), getMaxTime().toLocalDate());
         Duration duration = Duration.between(getMinTime().toLocalTime(), getMaxTime().toLocalTime());
-        long result = this.totalTraffic / (period.getDays() * 24 + duration.toHoursPart());
-        return result;
+        return this.totalTraffic / getPeriodOfTimeInHours();
     }
 
     /**
@@ -104,4 +126,37 @@ public class Statistics {
         }
         return map;
     }
+
+    /**
+     * Метод возвращает среднюю посещаемость сайта одним пользователем
+     */
+    public int getCountUsers() {
+        return getCountRequestOfUsers() / setIpAddr.size();
+    }
+
+
+    /**
+     * Метод возвращает среднее количество посещений сайта за час
+     */
+    public int getCountVisitsPerHour() {
+        return this.countRequestOfUsers / getPeriodOfTimeInHours();
+    }
+
+    /**
+     * Метод возвращает среднее количество ошибочных запросов пользователями сайта за час
+     */
+    public int getCountFailedRequestOfUsersPerHour() {
+        return this.countFailedRequestOfUsers / getPeriodOfTimeInHours();
+    }
+
+    /**
+     * Метод возвращает период времени в часах, за который имеются записи в логе
+     */
+    private int getPeriodOfTimeInHours() {
+        Period period = Period.between(getMinTime().toLocalDate(), getMaxTime().toLocalDate());
+        Duration duration = Duration.between(getMinTime().toLocalTime(), getMaxTime().toLocalTime());
+        return period.getDays() * 24 + duration.toHoursPart();
+    }
+
+
 }

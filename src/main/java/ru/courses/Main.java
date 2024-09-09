@@ -38,8 +38,12 @@ public class Main {
 //            System.out.println("Количество ОС: " + getStatistics(file).getCountOS());
 //            System.out.println("Статистика ОС: " + getStatistics(file).getStatisticsOS());
 //            System.out.println("Запросы с кодом 404: " + getStatistics(file).getSetNonExistingPages());
-            System.out.println("Количество используемых браузеров" + getStatistics(file).getCountBrowsers());
-            System.out.println("Статистика по используемым браузерам" + getStatistics(file).getStatisticsBrowsers());
+//            System.out.println("Количество используемых браузеров" + getStatistics(file).getCountBrowsers());
+//            System.out.println("Статистика по используемым браузерам" + getStatistics(file).getStatisticsBrowsers());
+//            System.out.println("Среднее количество посещений сайта за час: " + getStatistics(file).getCountVisitsPerHour());
+//            System.out.println("Количество ошибочных запросов: " + getStatistics(file).getCountFailedRequestOfUsers());
+//            System.out.println("Среднее количество ошибочных запросов в час: " + getStatistics(file).getCountFailedRequestOfUsersPerHour());
+            System.out.println("Средняя посещаемость одним пользователем: " + getStatistics(file).getCountUsers());
         }
 
     }
@@ -65,6 +69,7 @@ public class Main {
         }
         return statistics;
     }
+
     /**
      * Метод возвращает список распарсенный на элементы предусмотренные в классе LogEntry
      */

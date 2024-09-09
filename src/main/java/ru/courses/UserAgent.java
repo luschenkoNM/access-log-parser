@@ -6,12 +6,18 @@ import lombok.Getter;
 public class UserAgent {
     private final String osName;
     private final String browserName;
+    private final boolean isBot;
+
 
     public UserAgent(String str) {
         this.osName = getOsName(FragmentLog.USER_AGENT.getParameters(str));
         this.browserName = getBrowserName(FragmentLog.USER_AGENT.getParameters(str));
+        this.isBot = isBot(FragmentLog.USER_AGENT.getParameters(str));
     }
 
+    private boolean isBot(String str){
+        return str.contains("bot");
+    }
 
     private String getOsName(String str) {
         String osName = "Other";
