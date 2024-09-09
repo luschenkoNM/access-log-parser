@@ -5,9 +5,7 @@ import lombok.Getter;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.Period;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 @Getter
 public class Statistics {
@@ -21,6 +19,8 @@ public class Statistics {
     private HashMap<String, Integer> countOS;
     private HashMap<String, Integer> countBrowsers;
     private HashSet<String> setIpAddr;
+    private HashMap<LocalDateTime, Integer> countOfRequestPerSecond;
+    private HashSet<String> setDomainAddr;
 
     public Statistics() {
         this.minTime = LocalDateTime.MAX;
@@ -33,12 +33,16 @@ public class Statistics {
         this.countRequestOfUsers = 0;
         this.countFailedRequestOfUsers = 0;
         this.setIpAddr = new HashSet<>();
+        this.countOfRequestPerSecond = new HashMap<>();
+        this.setDomainAddr = new HashSet<>();
     }
 
     public void addEntry(LogEntry logEntry) {
         this.totalTraffic = getTotalTraffic() + logEntry.getResponseSize();
         this.countOS = getCountOS(logEntry);
         this.countBrowsers = getCountBrowser(logEntry);
+        if (checkExistDomainAddr(logEntry))
+            this.setDomainAddr.add(getDomainAdrr(logEntry));
         if (logEntry.getTime().isBefore(getMinTime()))
             this.minTime = logEntry.getTime();
         if (logEntry.getTime().isAfter(getMaxTime()))
@@ -53,6 +57,27 @@ public class Statistics {
             this.countFailedRequestOfUsers++;
         if (!logEntry.getUserAgent().isBot())
             this.setIpAddr.add(logEntry.getIpAddr());
+        if (!logEntry.getUserAgent().isBot())
+            this.countOfRequestPerSecond = getCountRequestInSeconds(logEntry);
+    }
+
+    /**
+     * Метод проверяет наличие доменного имени в refer
+     */
+    private Boolean checkExistDomainAddr(LogEntry logEntry) {
+        boolean result = false;
+        String[] split = logEntry.getRefer().split("/");
+        if (split.length > 1)
+            result = true;
+        return result;
+    }
+
+    /**
+     * Метод возвращает доменное имя
+     */
+    private String getDomainAdrr(LogEntry logEntry) {
+        String[] split = logEntry.getRefer().split("/");
+        return split[2];
     }
 
     /**
@@ -84,6 +109,23 @@ public class Statistics {
             countBrowsers.put(logEntry.getUserAgent().getBrowserName(), countBrowsers.get(logEntry.getUserAgent().getBrowserName()) + 1);
         else countBrowsers.put(logEntry.getUserAgent().getBrowserName(), 1);
         return countBrowsers;
+    }
+
+    /**
+     * Метод возвращает количество запросов пользователей за каждую секунду в виде Map, ключ: LocalDateTime, значение: количество запросов
+     */
+    private HashMap<LocalDateTime, Integer> getCountRequestInSeconds(LogEntry logEntry) {
+        if (countOfRequestPerSecond.containsKey(logEntry.getTime()))
+            countOfRequestPerSecond.put(logEntry.getTime(), countOfRequestPerSecond.get(logEntry.getTime()) + 1);
+        else countOfRequestPerSecond.put(logEntry.getTime(), 1);
+        return countOfRequestPerSecond;
+    }
+
+    /**
+     * Метод возвращает пиковое значение посещаемости сайта в секунду одним пользователем
+     */
+    public Integer getMaxCountRequestInSeconds() {
+        return countOfRequestPerSecond.entrySet().stream().max(Map.Entry.comparingByValue()).get().getValue();
     }
 
     /**
